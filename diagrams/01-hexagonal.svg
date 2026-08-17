@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrIn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4f46e5"/>
+    </marker>
+    <marker id="arrOut" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0d9488"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="720" fill="#f7f8fb"/>
+  <text x="64" y="72" font-size="34" font-weight="700" fill="#1a2238">Arquitectura hexagonal — puertos y adaptadores</text>
+  <text x="64" y="104" font-size="18" fill="#5b6478">El negocio vive en el centro. El mundo exterior se enchufa con adaptadores. Las dependencias apuntan hacia adentro.</text>
+
+  <!-- Hexagon core -->
+  <polygon points="804.5,265 640,170 475.5,265 475.5,455 640,550 804.5,455"
+           fill="#eef0fe" stroke="#4f46e5" stroke-width="3"/>
+  <text x="640" y="330" text-anchor="middle" font-size="24" font-weight="700" fill="#312e81">DOMINIO</text>
+  <text x="640" y="362" text-anchor="middle" font-size="15" fill="#4338ca">Reglas de negocio</text>
+  <text x="640" y="384" text-anchor="middle" font-size="13" fill="#6366f1">(Java / TS puro, sin frameworks)</text>
+  <text x="640" y="424" text-anchor="middle" font-size="20" font-weight="700" fill="#312e81">CASOS DE USO</text>
+  <text x="640" y="450" text-anchor="middle" font-size="13" fill="#6366f1">orquestan y aplican reglas</text>
+
+  <!-- Port labels on hexagon edges -->
+  <rect x="430" y="335" width="92" height="50" rx="8" fill="#4f46e5"/>
+  <text x="476" y="356" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">PUERTO</text>
+  <text x="476" y="374" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">IN</text>
+
+  <rect x="758" y="335" width="92" height="50" rx="8" fill="#0d9488"/>
+  <text x="804" y="356" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">PUERTO</text>
+  <text x="804" y="374" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">OUT</text>
+
+  <!-- Driving adapters (left) -->
+  <text x="170" y="250" text-anchor="middle" font-size="15" font-weight="700" fill="#4f46e5">ADAPTADORES DE ENTRADA</text>
+  <rect x="70" y="280" width="200" height="56" rx="10" fill="#fff" stroke="#4f46e5" stroke-width="2"/>
+  <text x="170" y="305" text-anchor="middle" font-size="15" font-weight="600" fill="#1a2238">CarController (REST)</text>
+  <text x="170" y="324" text-anchor="middle" font-size="12" fill="#5b6478">POST /api/cars · GET · PUT · DELETE</text>
+  <rect x="70" y="384" width="200" height="56" rx="10" fill="#fff" stroke="#4f46e5" stroke-width="2"/>
+  <text x="170" y="409" text-anchor="middle" font-size="15" font-weight="600" fill="#1a2238">AuthController</text>
+  <text x="170" y="428" text-anchor="middle" font-size="12" fill="#5b6478">register · login → JWT</text>
+
+  <line x1="270" y1="308" x2="468" y2="352" stroke="#4f46e5" stroke-width="2.5" marker-end="url(#arrIn)"/>
+  <line x1="270" y1="412" x2="468" y2="368" stroke="#4f46e5" stroke-width="2.5" marker-end="url(#arrIn)"/>
+
+  <!-- Driven adapters (right) -->
+  <text x="1110" y="250" text-anchor="middle" font-size="15" font-weight="700" fill="#0d9488">ADAPTADORES DE SALIDA</text>
+  <rect x="1010" y="280" width="200" height="56" rx="10" fill="#fff" stroke="#0d9488" stroke-width="2"/>
+  <text x="1110" y="305" text-anchor="middle" font-size="15" font-weight="600" fill="#1a2238">CarPersistenceAdapter</text>
+  <text x="1110" y="324" text-anchor="middle" font-size="12" fill="#5b6478">JPA → SQL Server</text>
+  <rect x="1010" y="384" width="200" height="56" rx="10" fill="#fff" stroke="#0d9488" stroke-width="2"/>
+  <text x="1110" y="409" text-anchor="middle" font-size="15" font-weight="600" fill="#1a2238">JwtTokenProviderAdapter</text>
+  <text x="1110" y="428" text-anchor="middle" font-size="12" fill="#5b6478">firma / valida tokens</text>
+
+  <line x1="812" y1="352" x2="1008" y2="308" stroke="#0d9488" stroke-width="2.5" marker-end="url(#arrOut)"/>
+  <line x1="812" y1="368" x2="1008" y2="412" stroke="#0d9488" stroke-width="2.5" marker-end="url(#arrOut)"/>
+
+  <!-- Legend -->
+  <text x="64" y="640" font-size="15" fill="#5b6478"><tspan font-weight="700" fill="#4f46e5">Puerto</tspan> = interfaz (el contrato: qué se puede hacer).   <tspan font-weight="700" fill="#0d9488">Adaptador</tspan> = implementación concreta (cómo se hace).</text>
+  <text x="64" y="668" font-size="15" fill="#5b6478">Cambiar SQL Server por otra BD = cambiar el adaptador de salida. El dominio no se entera. Lo mismo aplica al backend (Spring Boot) y al frontend (Angular).</text>
+</svg>

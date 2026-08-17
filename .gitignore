@@ -1,0 +1,31 @@
+# Secrets / local env
+.env.local
+*.local
+
+# Local toolchain (downloaded JDK and Maven distributions, ~600 MB)
+.jdk/
+.maven/
+
+# Backend (Java / Maven)
+backend/target/
+backend/.mvn/
+backend/!.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# Frontend (Node / Angular)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+npm-debug.log*
+
+# IDE / OS / AI tooling
+.idea/
+.vscode/
+*.iml
+.DS_Store
+.claude/
+.atl/
+.github/modernize/
+
+# Build / logs
+*.log

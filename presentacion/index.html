@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Presentación interactiva sobre la arquitectura hexagonal, Spring Boot, JWT, Angular y SQL Server de Car Manager.">
+  <title>Car Manager · Arquitectura y flujo completo</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#slide-01">Ir al contenido</a>
+
+  <header class="deck-header" aria-label="Controles de la presentación">
+    <button class="icon-button toc-trigger" type="button" data-action="open-toc" aria-haspopup="dialog" aria-controls="toc" aria-label="Abrir índice">
+      <span aria-hidden="true">☰</span><span class="control-label">Índice</span>
+    </button>
+    <div class="brand-lockup" aria-label="Car Manager, mapa técnico">
+      <span class="brand-mark" aria-hidden="true">CM</span>
+      <span><strong>Car Manager</strong><small>Mapa técnico</small></span>
+    </div>
+    <div class="slide-counter" aria-live="polite" aria-atomic="true">
+      <span id="current-slide">01</span><span aria-hidden="true"> / </span><span class="sr-only">de</span><span id="total-slides">22</span>
+    </div>
+  </header>
+
+  <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <main id="deck" class="deck" aria-label="Presentación sobre Car Manager">
+    <section class="slide hero-slide is-active" id="slide-01" data-title="Mapa general" tabindex="-1" aria-labelledby="title-01">
+      <div class="slide-shell hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow"><span>01</span> Punto de partida</p>
+          <p class="objective"><strong>Objetivo:</strong> comprender qué construye el sistema y cómo seguir una petición de punta a punta.</p>
+          <h1 id="title-01">Car Manager,<br><em>pieza por pieza</em></h1>
+          <p class="lede">Una guía visual para entender arquitectura hexagonal, Spring Boot, JWT, Angular y SQL Server sin memorizar archivos aislados.</p>
+          <div class="hero-route" aria-label="Ruta de aprendizaje">
+            <span>Necesidad</span><b aria-hidden="true">→</b><span>Diseño</span><b aria-hidden="true">→</b><span>Runtime</span><b aria-hidden="true">→</b><span>Pruebas</span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="speed-ring"><span>22</span><small>paradas</small></div>
+          <div class="road-line"></div>
+          <div class="visual-label label-a">DOMINIO</div>
+          <div class="visual-label label-b">PUERTOS</div>
+          <div class="visual-label label-c">ADAPTADORES</div>
+        </div>
+        <aside class="takeaway"><span>Idea clave</span><p>Conviene estudiar el recorrido completo: quién inicia la acción, qué regla se aplica y qué adaptador conecta el mundo exterior.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-02" data-title="Del requisito al producto" tabindex="-1" aria-labelledby="title-02">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>02</span> Del requisito al producto</p>
+        <p class="objective"><strong>Objetivo:</strong> separar la necesidad de negocio de las decisiones tecnológicas.</p>
+        <h2 id="title-02">La necesidad era simple.<br>La implementación tomó decisiones.</h2>
+        <div class="split-panel">
+          <article class="panel requirement-card">
+            <p class="panel-kicker">Requisito original</p>
+            <h3>Usuarios + autos propios</h3>
+            <ul class="check-list">
+              <li>Registro y login con JWT</li>
+              <li>CRUD de autos por usuario</li>
+              <li>Spring Boot + SQL Server</li>
+              <li>Frontend solicitado en React</li>
+            </ul>
+            <p class="path-label">Fuente: <code>idea_inicial.md</code></p>
+          </article>
+          <article class="panel decision-card">
+            <p class="panel-kicker">Producto construido</p>
+            <h3>Angular como frontend</h3>
+            <p>Se eligió Angular 18 standalone y se mantuvo Spring Boot, SQL Server y JWT. Es una desviación consciente respecto del framework pedido, no un detalle invisible.</p>
+            <div class="decision-line"><span>React solicitado</span><b>≠</b><span>Angular elegido</span></div>
+          </article>
+        </div>
+        <aside class="takeaway"><span>Idea clave</span><p>La arquitectura responde al problema; el framework es una decisión reemplazable que debe explicarse y justificarse.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-03" data-title="Sistema en ejecución" tabindex="-1" aria-labelledby="title-03">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>03</span> Vista de sistema</p>
+        <p class="objective"><strong>Objetivo:</strong> ubicar cada tecnología y reconocer los límites del estado actual.</p>
+        <h2 id="title-03">Tres procesos, una experiencia</h2>
+        <div class="runtime-strip" aria-label="Topología del sistema">
+          <article><span class="node-number">01</span><h3>Angular</h3><p>Renderiza la interfaz y envía HTTP.</p><code>localhost:4200</code></article>
+          <span class="connector" aria-hidden="true">HTTP</span>
+          <article><span class="node-number">02</span><h3>Spring Boot</h3><p>Autentica, ejecuta reglas y expone la API.</p><code>localhost:8080</code></article>
+          <span class="connector" aria-hidden="true">JDBC</span>
+          <article><span class="node-number">03</span><h3>SQL Server</h3><p>Persiste usuarios, hashes y autos.</p><code>localhost:1433</code></article>
+        </div>
+        <div class="historical-note" role="note">
+          <strong>Contexto documentado, no estado operativo confirmado</strong>
+          <p><code>README.md</code> y <code>DOCUMENTACION_PROCESO.md</code> describen una topología con Apple <code>container</code>. <code>scripts/tools/</code> existe como directorio, pero actualmente no hay scripts auxiliares ejecutables para iniciar el sistema; por eso esta presentación no afirma que exista arranque en un comando.</p>
+        </div>
+        <aside class="takeaway"><span>Idea clave</span><p>La documentación histórica explica la intención; el contenido actual del repositorio determina lo que realmente puede ejecutarse.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-04" data-title="Hexagonal pragmática" tabindex="-1" aria-labelledby="title-04">
+      <div class="slide-shell diagram-layout">
+        <div>
+          <p class="eyebrow"><span>04</span> Arquitectura</p>
+          <p class="objective"><strong>Objetivo:</strong> entender por qué el negocio queda en el centro.</p>
+          <h2 id="title-04">Hexagonal no significa “muchas carpetas”</h2>
+          <p class="lede compact">Significa que el núcleo define qué necesita, mientras los detalles externos se conectan mediante contratos.</p>
+          <div class="three-rules">
+            <article><b>1</b><span>El dominio expresa reglas.</span></article>
+            <article><b>2</b><span>Los puertos expresan contratos.</span></article>
+            <article><b>3</b><span>Los adaptadores hablan con HTTP, JPA o storage.</span></article>
+          </div>
+          <p class="pragmatic-label">Arquitectura <strong>hexagonal pragmática</strong>: el proyecto protege las reglas principales, pero acepta anotaciones Spring en servicios de aplicación para evitar complejidad ceremonial.</p>
+        </div>
+        <figure class="diagram-card">
+          <img src="../diagrams/01-hexagonal.svg" alt="Diagrama de arquitectura hexagonal con dominio, puertos y adaptadores">
+          <figcaption>Diagrama existente: <code>diagrams/01-hexagonal.svg</code></figcaption>
+        </figure>
+        <aside class="takeaway"><span>Idea clave</span><p>El beneficio no es la forma del dibujo: es poder razonar y probar reglas sin depender de la base de datos o de la interfaz.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-05" data-title="Dominio, puertos y adaptadores" tabindex="-1" aria-labelledby="title-05">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>05</span> Vocabulario esencial</p>
+        <p class="objective"><strong>Objetivo:</strong> reconocer las tres responsabilidades sin confundirlas.</p>
+        <h2 id="title-05">El mismo caso de uso, tres zonas</h2>
+        <div class="layer-comparison">
+          <article class="layer domain-layer"><span class="layer-tag">DOMINIO</span><h3>Qué es válido</h3><p><code>Car</code>, <code>User</code>, <code>Email</code> e invariantes.</p><small>No conoce HTTP ni SQL.</small></article>
+          <article class="layer port-layer"><span class="layer-tag">PUERTO</span><h3>Qué se necesita</h3><p><code>CarRepositoryPort</code>, <code>TokenProviderPort</code> y casos de uso.</p><small>Es un contrato.</small></article>
+          <article class="layer adapter-layer"><span class="layer-tag">ADAPTADOR</span><h3>Cómo se resuelve</h3><p><code>CarPersistenceAdapter</code>, controladores, JWT y localStorage.</p><small>Implementa o invoca un puerto.</small></article>
+        </div>
+        <div class="distinction"><strong>Puerto ≠ adaptador</strong><span>La interfaz dice “qué”; la implementación concreta decide “cómo”.</span></div>
+        <aside class="takeaway"><span>Idea clave</span><p>Si cambiara SQL Server por otro almacenamiento, el puerto puede permanecer y el adaptador cambiar.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-06" data-title="Backend con Spring Boot" tabindex="-1" aria-labelledby="title-06">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>06</span> Backend</p>
+        <p class="objective"><strong>Objetivo:</strong> leer la estructura del backend por responsabilidad y módulo.</p>
+        <h2 id="title-06">Spring Boot arranca el sistema;<br>los módulos cuentan la historia</h2>
+        <div class="module-map">
+          <div class="module-head"><code>backend/src/main/java/com/example/cars/</code></div>
+          <article><h3>auth/</h3><p>Registro, login, BCrypt, JWT, filtro y configuración de seguridad.</p></article>
+          <article><h3>cars/</h3><p>Dominio del auto, CRUD, puertos y persistencia.</p></article>
+          <article><h3>users/</h3><p>Usuario, email y repositorio de usuarios.</p></article>
+          <article><h3>shared/</h3><p>Errores, CORS, OpenAPI y manejo transversal.</p></article>
+        </div>
+        <pre class="code-card"><span class="code-path">backend/src/main/java/com/example/cars/CarsApplication.java</span><code>@SpringBootApplication
+public class CarsApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(CarsApplication.class, args);
+    }
+}</code></pre>
+        <aside class="takeaway"><span>Idea clave</span><p>Spring crea y conecta objetos; el comportamiento de negocio sigue distribuido en dominio y servicios de aplicación.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-07" data-title="Reglas del dominio Car" tabindex="-1" aria-labelledby="title-07">
+      <div class="slide-shell code-layout">
+        <div>
+          <p class="eyebrow"><span>07</span> Dominio</p>
+          <p class="objective"><strong>Objetivo:</strong> detectar invariantes y propiedad dentro del modelo.</p>
+          <h2 id="title-07"><code>Car</code> protege datos válidos</h2>
+          <ul class="number-list">
+            <li><span>01</span><p>Todo auto necesita <code>ownerId</code>.</p></li>
+            <li><span>02</span><p>Marca, modelo, placa y color no pueden estar vacíos.</p></li>
+            <li><span>03</span><p>El año queda entre 1886 y el año siguiente.</p></li>
+            <li><span>04</span><p><code>belongsTo</code> permite aplicar propiedad en el caso de uso.</p></li>
+          </ul>
+        </div>
+        <pre class="code-card tall"><span class="code-path">backend/.../cars/domain/Car.java</span><code>public boolean belongsTo(UserId userId) {
+    return ownerId.equals(userId);
+}
+
+private void applyDetails(...) {
+    this.brand = requireText(brand, "Brand");
+    int maxYear = Year.now().getValue() + 1;
+    if (year &lt; 1886 || year &gt; maxYear) {
+        throw new InvalidInputException(...);
+    }
+}</code></pre>
+        <aside class="takeaway"><span>Idea clave</span><p>Una entidad de dominio no es una bolsa de campos: impide que el sistema represente estados inválidos.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-08" data-title="Car frente a CarJpaEntity" tabindex="-1" aria-labelledby="title-08">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>08</span> Distinción crítica</p>
+        <p class="objective"><strong>Objetivo:</strong> separar el modelo de negocio del modelo de persistencia.</p>
+        <h2 id="title-08"><code>Car</code> y <code>CarJpaEntity</code><br>representan cosas distintas</h2>
+        <div class="versus-grid">
+          <article class="panel"><p class="panel-kicker">Modelo de dominio</p><h3><code>Car</code></h3><ul><li>Aplica invariantes.</li><li>Usa <code>CarId</code> y <code>UserId</code>.</li><li>No tiene <code>@Entity</code>.</li><li>Expresa “auto del negocio”.</li></ul><p class="path-label">cars/domain/Car.java</p></article>
+          <div class="versus" aria-hidden="true">≠</div>
+          <article class="panel"><p class="panel-kicker">Modelo de base de datos</p><h3><code>CarJpaEntity</code></h3><ul><li>Mapea tabla y columnas.</li><li>Usa tipos compatibles con JPA.</li><li>Tiene <code>@Entity</code> y <code>@Column</code>.</li><li>Expresa “fila persistida”.</li></ul><p class="path-label">infrastructure/.../CarJpaEntity.java</p></article>
+        </div>
+        <pre class="code-card compact-code"><span class="code-path">CarPersistenceAdapter.java · traducción de infraestructura a dominio</span><code>return Car.reconstitute(CarId.of(e.getId()), UserId.of(e.getUserId()),
+        e.getBrand(), e.getModel(), e.getYear(),
+        e.getPlateNumber(), e.getColor(), e.getPhotoUrl());</code></pre>
+        <aside class="takeaway"><span>Idea clave</span><p>Separar ambos modelos evita que las decisiones de JPA dicten la forma del dominio.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-09" data-title="Puertos, adaptadores y persistencia" tabindex="-1" aria-labelledby="title-09">
+      <div class="slide-shell code-layout">
+        <div>
+          <p class="eyebrow"><span>09</span> Persistencia</p>
+          <p class="objective"><strong>Objetivo:</strong> seguir la dependencia desde el caso de uso hasta SQL Server.</p>
+          <h2 id="title-09">El servicio pide; el adaptador traduce</h2>
+          <div class="flow-steps vertical-flow">
+            <div><b>1</b><span><code>CarService</code> depende de <code>CarRepositoryPort</code>.</span></div>
+            <div><b>2</b><span><code>CarPersistenceAdapter</code> implementa ese puerto.</span></div>
+            <div><b>3</b><span><code>CarJpaRepository</code> ejecuta operaciones JPA.</span></div>
+            <div><b>4</b><span>SQL Server guarda <code>users</code> y <code>cars</code>.</span></div>
+          </div>
+        </div>
+        <div class="code-stack">
+          <pre class="code-card"><span class="code-path">CarRepositoryPort.java</span><code>public interface CarRepositoryPort {
+    Car save(Car car);
+    List&lt;Car&gt; findAllByOwner(UserId owner);
+    boolean existsByOwnerAndPlate(
+        UserId owner, String plateNumber);
+}</code></pre>
+          <pre class="code-card"><span class="code-path">database/init.sql</span><code>CREATE UNIQUE INDEX uq_cars_user_plate
+ON dbo.cars(user_id, plate_number);</code></pre>
+        </div>
+        <aside class="takeaway"><span>Idea clave</span><p>La placa es única por usuario, no globalmente; la regla aparece en aplicación y también se refuerza con un índice compuesto.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-10" data-title="Registro y BCrypt" tabindex="-1" aria-labelledby="title-10">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>10</span> Registro</p>
+        <p class="objective"><strong>Objetivo:</strong> entender por qué una contraseña se hashea antes de persistir.</p>
+        <h2 id="title-10">La contraseña nunca se guarda tal como llega</h2>
+        <div class="sequence horizontal-sequence" aria-label="Flujo de registro">
+          <div><span>01</span><strong>Validar</strong><small>Email, longitud mínima y duplicados</small></div>
+          <i aria-hidden="true">→</i>
+          <div><span>02</span><strong>Hashear</strong><small>BCrypt produce un valor irreversible</small></div>
+          <i aria-hidden="true">→</i>
+          <div><span>03</span><strong>Persistir</strong><small>Se guarda <code>password_hash</code></small></div>
+          <i aria-hidden="true">→</i>
+          <div><span>04</span><strong>Emitir JWT</strong><small>El registro inicia sesión</small></div>
+        </div>
+        <pre class="code-card"><span class="code-path">backend/.../auth/application/service/RegisterUserService.java</span><code>String hash = passwordHasher.hash(command.password());
+User saved = userRepository.save(User.register(command.name(), email, hash));
+String token = tokenProvider.generateToken(saved.id());</code></pre>
+        <div class="distinction warning"><strong>Hashing ≠ cifrado</strong><span>BCrypt no necesita “descifrar”. En el login calcula y compara mediante <code>matches</code>.</span></div>
+        <aside class="takeaway"><span>Idea clave</span><p>El hash protege la contraseña almacenada; el token resuelve una necesidad diferente: representar una sesión autenticada.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-11" data-title="Login paso a paso" tabindex="-1" aria-labelledby="title-11">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>11</span> Login</p>
+        <p class="objective"><strong>Objetivo:</strong> recorrer la autenticación desde el controlador hasta la respuesta.</p>
+        <h2 id="title-11">Credenciales dentro; sesión firmada fuera</h2>
+        <ol class="timeline">
+          <li><span>POST</span><div><strong><code>/api/auth/login</code></strong><p><code>AuthController</code> convierte el JSON en <code>LoginCommand</code>.</p></div></li>
+          <li><span>LOOKUP</span><div><strong>Buscar por email</strong><p><code>LoginService</code> usa <code>UserRepositoryPort</code>.</p></div></li>
+          <li><span>CHECK</span><div><strong>Comparar con BCrypt</strong><p><code>passwordHasher.matches(...)</code> valida sin recuperar la clave original.</p></div></li>
+          <li><span>TOKEN</span><div><strong>Generar JWT</strong><p>El identificador del usuario queda en <code>sub</code>.</p></div></li>
+        </ol>
+        <pre class="code-card compact-code"><span class="code-path">LoginService.java</span><code>if (!passwordHasher.matches(command.password(), user.passwordHash())) {
+    throw new InvalidCredentialsException();
+}
+String token = tokenProvider.generateToken(user.id());</code></pre>
+        <aside class="takeaway"><span>Idea clave</span><p>Login autentica credenciales una vez; después, cada petición protegida autentica el token.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-12" data-title="Anatomía del JWT" tabindex="-1" aria-labelledby="title-12">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>12</span> JWT</p>
+        <p class="objective"><strong>Objetivo:</strong> distinguir contenido, firma y tiempo de vida del token.</p>
+        <h2 id="title-12">Tres segmentos; ninguna promesa de secreto</h2>
+        <div class="jwt-token" aria-label="Estructura conceptual de un JWT">
+          <button type="button" class="jwt-part header-part" data-jwt="header" aria-pressed="true">HEADER</button><span>.</span>
+          <button type="button" class="jwt-part payload-part" data-jwt="payload" aria-pressed="false">PAYLOAD</button><span>.</span>
+          <button type="button" class="jwt-part signature-part" data-jwt="signature" aria-pressed="false">SIGNATURE</button>
+        </div>
+        <div class="jwt-detail" id="jwt-detail" aria-live="polite">
+          <strong>Header</strong><p>Describe el tipo de token y el algoritmo de firma.</p>
+        </div>
+        <div class="claim-grid">
+          <article><code>sub</code><p>ID del usuario.</p></article>
+          <article><code>iat</code><p>Momento de emisión.</p></article>
+          <article><code>exp</code><p>Expiración: una hora.</p></article>
+        </div>
+        <pre class="code-card compact-code"><span class="code-path">application.yml + JwtTokenProviderAdapter.java</span><code>expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+
+.subject(String.valueOf(userId.value()))
+.issuedAt(Date.from(now))
+.expiration(Date.from(now.plusMillis(expirationMs)))
+.signWith(key)</code></pre>
+        <div class="distinction warning"><strong>Firma ≠ cifrado</strong><span>La firma detecta alteraciones y prueba que el emisor conocía la clave. El payload puede decodificarse: no debe llevar secretos.</span></div>
+        <p class="scope-note">Alcance actual: sin roles, refresh tokens ni revocación.</p>
+        <aside class="takeaway"><span>Idea clave</span><p>JWT aporta integridad y expiración; no oculta los claims ni reemplaza una política de autorización.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-13" data-title="Filtro y SecurityConfig" tabindex="-1" aria-labelledby="title-13">
+      <div class="slide-shell code-layout">
+        <div>
+          <p class="eyebrow"><span>13</span> Spring Security</p>
+          <p class="objective"><strong>Objetivo:</strong> ver cómo un Bearer token se convierte en principal autenticado.</p>
+          <h2 id="title-13">Cada petición reconstruye la identidad</h2>
+          <ol class="compact-list">
+            <li>El filtro lee <code>Authorization: Bearer …</code>.</li>
+            <li>El proveedor verifica firma y expiración.</li>
+            <li><code>sub</code> se transforma en <code>UserId</code>.</li>
+            <li>Spring guarda el ID como principal en <code>SecurityContextHolder</code>.</li>
+            <li>El controlador recibe <code>@AuthenticationPrincipal Long userId</code>.</li>
+          </ol>
+          <p class="scope-note">La política es stateless: no existe sesión del servidor que recordar entre peticiones.</p>
+        </div>
+        <div class="code-stack">
+          <pre class="code-card"><span class="code-path">JwtAuthenticationFilter.java</span><code>var authentication =
+    new UsernamePasswordAuthenticationToken(
+        userId.value(), null, List.of());
+SecurityContextHolder.getContext()
+    .setAuthentication(authentication);</code></pre>
+          <pre class="code-card"><span class="code-path">SecurityConfig.java</span><code>.sessionManagement(sm -&gt; sm.sessionCreationPolicy(
+    SessionCreationPolicy.STATELESS))
+.authorizeHttpRequests(auth -&gt; auth
+    .requestMatchers("/api/auth/**", "/swagger-ui/**",
+        "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+    .anyRequest().authenticated())</code></pre>
+        </div>
+        <aside class="takeaway"><span>Idea clave</span><p>El principal confiable nace del JWT verificado, no de un campo enviado libremente por el navegador.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-14" data-title="Autenticación y autorización" tabindex="-1" aria-labelledby="title-14">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>14</span> Distinción crítica</p>
+        <p class="objective"><strong>Objetivo:</strong> separar “quién realiza la petición” de “qué puede hacer”.</p>
+        <h2 id="title-14">Autenticar no alcanza</h2>
+        <div class="split-panel">
+          <article class="panel"><p class="panel-kicker">AUTENTICACIÓN</p><h3>¿Quién hace la petición?</h3><p>Spring Security valida el JWT y establece el ID del usuario como principal.</p><div class="status-chip">Token válido → identidad conocida</div></article>
+          <article class="panel"><p class="panel-kicker">AUTORIZACIÓN</p><h3>¿Puede tocar este auto?</h3><p><code>CarService.requireOwnedCar</code> carga el auto y comprueba <code>car.belongsTo(owner)</code>.</p><div class="status-chip amber">Auto ajeno → 404</div></article>
+        </div>
+        <pre class="code-card compact-code"><span class="code-path">CarService.java</span><code>if (!car.belongsTo(owner)) {
+    throw new CarNotFoundException(carId);
+}</code></pre>
+        <p class="scope-note">Devolver 404 evita confirmar que existe un recurso de otro usuario.</p>
+        <aside class="takeaway"><span>Idea clave</span><p>El token responde quién; la regla de propiedad responde sobre cuál recurso tiene permiso.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-15" data-title="Frontend hexagonal con Angular" tabindex="-1" aria-labelledby="title-15">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>15</span> Frontend</p>
+        <p class="objective"><strong>Objetivo:</strong> reconocer la misma separación de responsabilidades en Angular.</p>
+        <h2 id="title-15">Angular también usa núcleo y adaptadores</h2>
+        <div class="folder-tree" aria-label="Estructura del frontend">
+          <div class="tree-root"><code>frontend/src/app/</code></div>
+          <article><h3>core/domain</h3><p><code>Car</code>, <code>CarInput</code>, <code>AuthSession</code>.</p></article>
+          <article><h3>core/application</h3><p>Puertos y casos de uso de autenticación y autos.</p></article>
+          <article><h3>core/infrastructure</h3><p>HTTP, interceptor JWT y sesión en localStorage.</p></article>
+          <article><h3>features/*/presentation</h3><p>Login, registro, lista y formulario.</p></article>
+          <article><h3>shared/presentation</h3><p>Guards de rutas.</p></article>
+        </div>
+        <pre class="code-card compact-code"><span class="code-path">frontend/src/app/app.config.ts</span><code>{ provide: AuthRepositoryPort, useClass: AuthHttpAdapter },
+{ provide: CarRepositoryPort, useClass: CarHttpAdapter },
+{ provide: SessionStoragePort, useClass: LocalStorageSessionAdapter }</code></pre>
+        <aside class="takeaway"><span>Idea clave</span><p>La inyección de dependencias conecta contratos con implementaciones sin obligar a los casos de uso a conocer HttpClient o localStorage.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-16" data-title="Sesión, interceptor y guard" tabindex="-1" aria-labelledby="title-16">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>16</span> Sesión del navegador</p>
+        <p class="objective"><strong>Objetivo:</strong> distinguir almacenamiento, transporte y navegación.</p>
+        <h2 id="title-16">Tres piezas, tres trabajos</h2>
+        <div class="layer-comparison">
+          <article class="layer"><span class="layer-tag">STORAGE</span><h3><code>LocalStorageSessionAdapter</code></h3><p>Guarda y recupera <code>car-app.session</code>.</p></article>
+          <article class="layer"><span class="layer-tag">HTTP</span><h3><code>jwtInterceptor</code></h3><p>Adjunta <code>Authorization: Bearer …</code>.</p></article>
+          <article class="layer"><span class="layer-tag">ROUTING</span><h3><code>authGuard</code></h3><p>Redirige a <code>/login</code> si no hay token.</p></article>
+        </div>
+        <pre class="code-card compact-code"><span class="code-path">frontend/.../http/jwt.interceptor.ts</span><code>const token = inject(SessionStoragePort).token();
+return next(token
+  ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+  : request);</code></pre>
+        <div class="tradeoff"><strong>Decisión y costo:</strong><p><code>localStorage</code> simplifica la persistencia entre recargas, pero JavaScript puede leerlo; una vulnerabilidad XSS también podría extraer el token. Exige evitar inyección de contenido y aplicar una política web cuidadosa.</p></div>
+        <aside class="takeaway"><span>Idea clave</span><p>Guardar el token, enviarlo y decidir una ruta son responsabilidades diferentes.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-17" data-title="Flujo completo de login" tabindex="-1" aria-labelledby="title-17">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>17</span> Punta a punta</p>
+        <p class="objective"><strong>Objetivo:</strong> conectar frontend, backend y almacenamiento en el login.</p>
+        <h2 id="title-17">Así viaja una sesión</h2>
+        <div class="request-lane login-lane" aria-label="Secuencia completa de login">
+          <article><span>1</span><h3>LoginComponent</h3><p>Recoge email y contraseña.</p></article>
+          <b aria-hidden="true">→</b>
+          <article><span>2</span><h3>LoginUseCase</h3><p>Invoca <code>AuthRepositoryPort</code>.</p></article>
+          <b aria-hidden="true">→</b>
+          <article><span>3</span><h3>AuthHttpAdapter</h3><p>POST a <code>/api/auth/login</code>.</p></article>
+          <b aria-hidden="true">→</b>
+          <article><span>4</span><h3>LoginService</h3><p>Busca, compara BCrypt y firma JWT.</p></article>
+          <b aria-hidden="true">→</b>
+          <article><span>5</span><h3>SessionStoragePort</h3><p>Guarda <code>AuthSession</code>.</p></article>
+        </div>
+        <pre class="code-card compact-code"><span class="code-path">frontend/.../use-cases/auth.use-cases.ts</span><code>execute(credentials: Credentials): Observable&lt;AuthSession&gt; {
+  return this.auth.login(credentials).pipe(
+    tap((s) =&gt; this.session.save(s))
+  );
+}</code></pre>
+        <figure class="flow-reference">
+          <img src="../diagrams/02-flujo-end-to-end.svg" alt="Diagrama existente del flujo completo entre frontend, backend y base de datos">
+          <figcaption>Referencia visual existente: <code>diagrams/02-flujo-end-to-end.svg</code></figcaption>
+        </figure>
+        <aside class="takeaway"><span>Idea clave</span><p>El componente coordina la experiencia; los detalles de HTTP y almacenamiento quedan detrás de puertos.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-18" data-title="Flujo autenticado de autos" tabindex="-1" aria-labelledby="title-18">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>18</span> Petición protegida</p>
+        <p class="objective"><strong>Objetivo:</strong> seguir una operación de autos y localizar el origen confiable del propietario.</p>
+        <h2 id="title-18">El propietario viene del JWT,<br>no del JSON</h2>
+        <div class="owner-flow">
+          <div class="payload-card"><span>JSON del navegador</span><pre><code>{
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2022,
+  "plateNumber": "ABC123",
+  "color": "Blue",
+  "photoUrl": null
+}</code></pre><strong class="not-present">No contiene userId</strong></div>
+          <div class="plus" aria-hidden="true">+</div>
+          <div class="token-card"><span>JWT verificado</span><code>sub = userId</code><p>El filtro crea el principal.</p></div>
+          <div class="equals" aria-hidden="true">→</div>
+          <div class="controller-card"><span>CarController</span><code>@AuthenticationPrincipal Long userId</code><p>Construye <code>UserId.of(userId)</code>.</p></div>
+        </div>
+        <pre class="code-card compact-code"><span class="code-path">CarController.java</span><code>public CarResponse create(@AuthenticationPrincipal Long userId,
+                          @Valid @RequestBody CarRequest request) {
+    return CarResponse.from(createCar.create(
+        UserId.of(userId), toCreateCommand(request)));
+}</code></pre>
+        <aside class="takeaway"><span>Idea clave</span><p>No se confía en que el cliente declare quién es; la identidad se deriva de evidencia firmada y validada por el backend.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-19" data-title="CRUD y reglas de propiedad" tabindex="-1" aria-labelledby="title-19">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>19</span> Autos</p>
+        <p class="objective"><strong>Objetivo:</strong> entender cómo el CRUD aplica reglas más allá de guardar datos.</p>
+        <h2 id="title-19">Cada operación tiene un límite de seguridad</h2>
+        <div class="crud-grid">
+          <article><span class="method post">POST</span><h3>Crear</h3><p>Comprueba placa duplicada para ese propietario antes de guardar.</p><code>201 Created</code></article>
+          <article><span class="method get">GET</span><h3>Listar / obtener</h3><p>Lista por propietario; un auto ajeno se trata como inexistente.</p><code>200 / 404</code></article>
+          <article><span class="method put">PUT</span><h3>Actualizar</h3><p>Verifica propiedad y duplicado solo si la placa cambió.</p><code>200 / 409</code></article>
+          <article><span class="method delete">DELETE</span><h3>Eliminar</h3><p>Verifica propiedad antes de borrar por ID.</p><code>204 / 404</code></article>
+        </div>
+        <div class="security-pair">
+          <div><strong>Guard del frontend</strong><p>Mejora navegación, pero se puede omitir manipulando el navegador.</p></div>
+          <span aria-hidden="true">≠</span>
+          <div><strong>Seguridad del backend</strong><p>Es la frontera obligatoria y decide sobre cada petición.</p></div>
+        </div>
+        <aside class="takeaway"><span>Idea clave</span><p>El guard es experiencia de usuario; la seguridad real vive en Spring Security y en las reglas de propiedad del caso de uso.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-20" data-title="Pruebas y evidencia" tabindex="-1" aria-labelledby="title-20">
+      <div class="slide-shell">
+        <p class="eyebrow"><span>20</span> Confianza</p>
+        <p class="objective"><strong>Objetivo:</strong> diferenciar evidencia actual de reportes históricos.</p>
+        <h2 id="title-20">La arquitectura se demuestra con pruebas</h2>
+        <div class="evidence-grid">
+          <article class="evidence-card verified"><span>VERIFICADO EN ESTA SESIÓN</span><strong>12 / 12</strong><h3>Tests del frontend</h3><p>Casos de uso, adaptador HTTP, guard y presentación.</p></article>
+          <article class="evidence-card reported"><span>REPORTADO EN EL PROYECTO</span><strong>21</strong><h3>Tests unitarios del backend</h3><p>Dominio, propiedad, registro y login sin base de datos.</p></article>
+          <article class="evidence-card reported"><span>EVIDENCIA HISTÓRICA</span><strong>1</strong><h3>Flujo de integración</h3><p>Un reporte anterior documenta auth → CRUD contra SQL Server real.</p></article>
+        </div>
+        <div class="test-pyramid">
+          <span>Dominio</span><span>Casos de uso con puertos simulados</span><span>Adaptadores HTTP</span><span>Integración completa</span>
+        </div>
+        <p class="path-label">Fuentes del backend: <code>backend/src/test/java/...</code> y reportes del proyecto. No se presenta la evidencia histórica como una ejecución actual.</p>
+        <aside class="takeaway"><span>Idea clave</span><p>Un test rápido del núcleo explica reglas; una integración explica conexiones. Ambos aportan evidencia diferente.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-21" data-title="Glosario" tabindex="-1" aria-labelledby="title-21">
+      <div class="slide-shell glossary-shell">
+        <p class="eyebrow"><span>21</span> Glosario</p>
+        <p class="objective"><strong>Objetivo:</strong> convertir vocabulario técnico en conceptos recuperables.</p>
+        <div class="title-row"><h2 id="title-21">Consultar conceptos sin memorizarlos</h2><label class="search-box"><span class="sr-only">Buscar en el glosario</span><span aria-hidden="true">⌕</span><input id="glossary-search" type="search" placeholder="Buscar: puerto, JWT, JPA…" autocomplete="off"></label></div>
+        <div class="glossary-grid" id="glossary-grid" aria-live="polite">
+          <article data-terms="dominio reglas negocio entidad"><h3>Dominio</h3><p>Modelo y reglas que describen el problema, independientes de detalles externos.</p></article>
+          <article data-terms="puerto interfaz contrato entrada salida"><h3>Puerto</h3><p>Contrato que define una capacidad ofrecida o requerida por la aplicación.</p></article>
+          <article data-terms="adaptador implementación http jpa storage"><h3>Adaptador</h3><p>Pieza concreta que traduce entre un puerto y una tecnología.</p></article>
+          <article data-terms="caso uso servicio aplicación"><h3>Caso de uso</h3><p>Orquestación de una acción del sistema y sus reglas.</p></article>
+          <article data-terms="jwt token firma claims sub iat exp"><h3>JWT</h3><p>Token compacto firmado con claims de identidad y tiempo.</p></article>
+          <article data-terms="hashing bcrypt contraseña irreversible"><h3>Hashing</h3><p>Transformación unidireccional usada para verificar contraseñas sin guardarlas.</p></article>
+          <article data-terms="jpa hibernate persistencia orm"><h3>JPA</h3><p>API de persistencia que mapea entidades Java a estructuras relacionales.</p></article>
+          <article data-terms="principal identidad security context"><h3>Principal</h3><p>Identidad autenticada que Spring Security expone a los controladores.</p></article>
+          <article data-terms="interceptor bearer authorization header"><h3>Interceptor</h3><p>Función del frontend que añade el token a peticiones HTTP.</p></article>
+          <article data-terms="guard rutas frontend navegación"><h3>Guard</h3><p>Control de navegación del frontend; no sustituye la seguridad del backend.</p></article>
+        </div>
+        <p class="empty-search" id="glossary-empty" hidden>No hay conceptos que coincidan con esa búsqueda.</p>
+        <aside class="takeaway"><span>Idea clave</span><p>Comprender el rol de cada concepto permite reconstruir el flujo sin depender de nombres de memoria.</p></aside>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-22" data-title="Autoevaluación" tabindex="-1" aria-labelledby="title-22">
+      <div class="slide-shell quiz-shell">
+        <p class="eyebrow"><span>22</span> Cierre</p>
+        <p class="objective"><strong>Objetivo:</strong> comprobar la capacidad de explicar las decisiones esenciales con palabras propias.</p>
+        <div class="title-row"><h2 id="title-22">Cinco preguntas para validar tu mapa mental</h2><p class="quiz-progress" id="quiz-progress" aria-live="polite">0 de 5 respuestas reveladas</p></div>
+        <div class="quiz-list">
+          <article class="quiz-item"><button type="button" aria-expanded="false"><span>01</span>¿Por qué <code>Car</code> no debería ser la entidad JPA?</button><div class="quiz-answer" hidden><p>Porque <code>Car</code> expresa reglas del negocio y <code>CarJpaEntity</code> expresa cómo se persiste una fila. Separarlas evita acoplar el dominio a JPA.</p></div></article>
+          <article class="quiz-item"><button type="button" aria-expanded="false"><span>02</span>¿Qué diferencia hay entre un puerto y un adaptador?</button><div class="quiz-answer" hidden><p>El puerto define el contrato; el adaptador es una implementación o traducción concreta para HTTP, JPA, JWT o almacenamiento.</p></div></article>
+          <article class="quiz-item"><button type="button" aria-expanded="false"><span>03</span>¿Por qué firmar un JWT no cifra su contenido?</button><div class="quiz-answer" hidden><p>La firma permite detectar cambios y validar al emisor, pero el payload sigue siendo decodificable. Por eso no debe contener secretos.</p></div></article>
+          <article class="quiz-item"><button type="button" aria-expanded="false"><span>04</span>¿De dónde sale el propietario al crear un auto?</button><div class="quiz-answer" hidden><p>Del claim <code>sub</code> del JWT verificado, convertido en principal por Spring Security; no del JSON enviado por el cliente.</p></div></article>
+          <article class="quiz-item"><button type="button" aria-expanded="false"><span>05</span>¿Por qué el guard no reemplaza al backend?</button><div class="quiz-answer" hidden><p>Porque el guard solo controla navegación en código manipulable del navegador. El backend debe validar token y propiedad en cada petición.</p></div></article>
+        </div>
+        <div class="closing-model"><span>Tu mapa de salida</span><strong>Entrada → puerto → caso de uso → regla → puerto → adaptador → salida</strong></div>
+        <aside class="takeaway"><span>Idea clave</span><p>Poder narrar ese recorrido y ubicar dónde se validan identidad, propiedad y datos demuestra comprensión de la arquitectura.</p></aside>
+      </div>
+    </section>
+  </main>
+
+  <nav class="deck-controls" aria-label="Navegación entre diapositivas">
+    <button type="button" id="prev-button" data-action="previous" aria-label="Diapositiva anterior"><span aria-hidden="true">←</span><span>Anterior</span></button>
+    <button type="button" id="next-button" data-action="next" aria-label="Diapositiva siguiente"><span>Siguiente</span><span aria-hidden="true">→</span></button>
+  </nav>
+
+  <div class="keyboard-hint" id="keyboard-hint" role="status">
+    <span><kbd>←</kbd><kbd>→</kbd> para navegar · <kbd>Espacio</kbd> avanza · <kbd>Home</kbd>/<kbd>End</kbd></span>
+    <button type="button" data-action="dismiss-hint" aria-label="Ocultar ayuda de teclado">×</button>
+  </div>
+
+  <div class="overlay" id="toc" role="dialog" aria-modal="true" aria-labelledby="toc-title" hidden>
+    <div class="overlay-backdrop" data-action="close-toc"></div>
+    <div class="toc-panel" role="document">
+      <div class="toc-head"><div><p class="eyebrow">Navegación</p><h2 id="toc-title">Índice de la presentación</h2></div><button class="icon-button" type="button" data-action="close-toc" aria-label="Cerrar índice">×</button></div>
+      <nav id="toc-list" class="toc-list" aria-label="Diapositivas"></nav>
+      <p class="toc-help">Usá <kbd>Esc</kbd> para cerrar. El enlace de cada diapositiva puede compartirse.</p>
+    </div>
+  </div>
+
+  <div class="sr-only" id="slide-announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
