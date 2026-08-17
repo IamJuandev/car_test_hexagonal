@@ -1,0 +1,25 @@
+# PostgreSQL profile, used by the deployment. Activate with
+# SPRING_PROFILES_ACTIVE=postgres. The default profile keeps SQL Server, which
+# is what the local Apple `container` stack runs.
+#
+# Only the driver, the dialect and the bootstrap SQL differ: the domain, the use
+# cases and CarPersistenceAdapter are untouched, because persistence sits behind
+# a port.
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:carapp}
+    username: ${DB_USER:carapp}
+    password: ${DB_PASSWORD:carapp}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      # The managed database starts empty, so the app owns its bootstrap here.
+      # Both scripts are idempotent and safe on every restart.
+      mode: always
+      schema-locations: classpath:db/postgres/schema.sql
+      data-locations: classpath:db/postgres/data.sql
+      continue-on-error: false

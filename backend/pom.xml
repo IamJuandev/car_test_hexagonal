@@ -49,6 +49,13 @@
             <artifactId>mssql-jdbc</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <!-- Used by the `postgres` profile (deployment). Both drivers ship so
+                 the same artifact runs on either engine; the profile decides. -->
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springdoc</groupId>
