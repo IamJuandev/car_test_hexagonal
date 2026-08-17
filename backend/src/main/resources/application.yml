@@ -13,8 +13,18 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
     open-in-view: false
+  servlet:
+    multipart:
+      # Slightly above the 5 MB the domain allows, so an oversized file is
+      # rejected with a domain message instead of a container-level error.
+      max-file-size: 6MB
+      max-request-size: 6MB
 
 app:
+  uploads:
+    # Directory for uploaded car photos, served at /uploads/**. Relative to the
+    # process working directory; mount it as a volume to keep files between runs.
+    dir: ${UPLOADS_DIR:uploads}
   jwt:
     secret: ${JWT_SECRET:local-dev-secret-please-change-this-to-a-long-random-value-32b+}
     expiration-ms: ${JWT_EXPIRATION_MS:3600000}

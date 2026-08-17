@@ -7,11 +7,12 @@ import {
   ListCarsUseCase,
 } from '../../../core/application/use-cases/car.use-cases';
 import { CarFormComponent } from './car-form.component';
+import { PhotoUrlPipe } from '../../../shared/presentation/photo-url.pipe';
 
 @Component({
   selector: 'app-car-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, CarFormComponent],
+  imports: [RouterLink, FormsModule, CarFormComponent, PhotoUrlPipe],
   template: `
     <section class="garage-page" aria-labelledby="garage-title">
       <header class="page-heading">
@@ -123,7 +124,7 @@ import { CarFormComponent } from './car-form.component';
               <div class="car-card__media">
                 @if (car.photoUrl) {
                   <img
-                    [src]="car.photoUrl"
+                    [src]="car.photoUrl | photoUrl"
                     [alt]="car.brand + ' ' + car.model"
                     loading="lazy"
                   />

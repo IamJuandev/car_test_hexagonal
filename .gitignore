@@ -8,6 +8,8 @@
 
 # Backend (Java / Maven)
 backend/target/
+# Runtime uploads: user content, not source.
+backend/uploads/
 backend/.mvn/
 backend/!.mvn/wrapper/maven-wrapper.jar
 *.class

@@ -4,6 +4,7 @@ import com.example.cars.auth.infrastructure.adapter.in.web.JwtAuthenticationFilt
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,6 +38,11 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**")
+                        .permitAll()
+                        // Uploaded photos are read by <img> tags, which cannot send
+                        // an Authorization header. Reading is public; uploading
+                        // (POST /api/cars/photos) still requires a token.
+                        .requestMatchers(HttpMethod.GET, "/uploads/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(

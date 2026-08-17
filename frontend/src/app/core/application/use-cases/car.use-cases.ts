@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CarRepositoryPort } from '../ports/car.repository.port';
+import { PhotoRepositoryPort } from '../ports/photo.repository.port';
 import { Car, CarInput } from '../../domain/car.model';
 
 @Injectable({ providedIn: 'root' })
@@ -45,5 +46,19 @@ export class DeleteCarUseCase {
 
   execute(id: number): Observable<void> {
     return this.cars.remove(id);
+  }
+}
+
+/**
+ * Uploads an image and returns the URL to store on the car. Kept separate from
+ * saving the car so both ways of setting a photo — uploading a file and pasting
+ * a link — end up writing the same single field.
+ */
+@Injectable({ providedIn: 'root' })
+export class UploadCarPhotoUseCase {
+  private readonly photos = inject(PhotoRepositoryPort);
+
+  execute(file: File): Observable<string> {
+    return this.photos.upload(file);
   }
 }

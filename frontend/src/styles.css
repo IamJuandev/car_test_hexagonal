@@ -1532,3 +1532,97 @@ a:hover {
     transform: none;
   }
 }
+
+/* Photo field: upload / link tabs, preview and remove action. */
+.field--photo {
+  grid-column: 1 / -1;
+  gap: 0.6rem;
+}
+
+.field-label {
+  color: var(--ink-800);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.photo-source {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--ink-50);
+  align-self: flex-start;
+}
+
+.photo-source__tab {
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 0.95rem;
+  background: transparent;
+  color: var(--ink-600);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.photo-source__tab:hover:not(.is-active) {
+  color: var(--ink-800);
+}
+
+.photo-source__tab.is-active {
+  background: var(--color-surface);
+  color: var(--cobalt-700);
+  box-shadow: var(--shadow-sm);
+}
+
+.photo-file-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.6rem 0.8rem;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--ink-600);
+  font-size: var(--text-sm);
+}
+
+.photo-file-input:hover:not(:disabled) {
+  border-color: var(--cobalt-500);
+}
+
+.photo-file-input:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.photo-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--ink-50);
+}
+
+.photo-preview img {
+  width: 96px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--ink-100);
+}
+
+.link-button {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--cobalt-700);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}

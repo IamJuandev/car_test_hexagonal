@@ -70,9 +70,29 @@ right after: it inserts the demo user `demo@carapp.test` / `password123`
 (real BCrypt hash, verified against the login endpoint) and two sample cars.
 Both scripts are idempotent.
 
+## Car photos
+
+A car photo can be set in two ways, and both end up in the same `photoUrl`
+field:
+
+- **Paste a link** — the URL is stored as given.
+- **Upload a file** — `POST /api/cars/photos` (multipart, field `file`, JWT
+  required) accepts JPEG, PNG, WebP or GIF up to 5 MB and answers
+  `{"photoUrl": "/uploads/<generated-name>"}`.
+
+Uploaded files are written to the directory in `app.uploads.dir`
+(`UPLOADS_DIR`, default `uploads/` next to the running process) and served at
+`/uploads/**`. Reading them is public, because an `<img>` tag cannot send an
+`Authorization` header; uploading still requires a token.
+
+The stored name is always generated (UUID plus an extension derived from the
+content type), so a client-supplied filename can never escape the directory.
+Because the saved value is a path and not a full URL, the database holds no
+hostname and the frontend resolves it against the API base URL at render time.
+
 ## Tests
 
-### Backend — unit tests (21, no DB)
+### Backend — unit tests (44, no DB)
 
 Domain + use cases, in a Maven container with a cached dependency volume:
 
@@ -99,7 +119,7 @@ container run --rm --platform linux/amd64 --network car-app-net \
 The `it` profile flips the surefire group filter to run only `@Tag("integration")`
 tests; plain `mvn test` keeps excluding them.
 
-### Frontend — unit tests (8)
+### Frontend — unit tests (13)
 
 Build a small reusable test image once (Node 20 + headless Chromium baked in,
 so repeat runs skip the slow apt download):

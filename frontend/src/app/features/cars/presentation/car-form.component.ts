@@ -5,12 +5,16 @@ import {
   CreateCarUseCase,
   GetCarUseCase,
   UpdateCarUseCase,
+  UploadCarPhotoUseCase,
 } from '../../../core/application/use-cases/car.use-cases';
+import { PhotoUrlPipe } from '../../../shared/presentation/photo-url.pipe';
+
+type PhotoSource = 'upload' | 'link';
 
 @Component({
   selector: 'app-car-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, PhotoUrlPipe],
   template: `
     <section class="car-form-page" [class.car-form-page--modal]="modal">
       @if (!modal) {
@@ -149,17 +153,76 @@ import {
               }
             </div>
 
-            <div class="field">
-              <label for="car-photo">Photo URL <span class="optional-label">Optional</span></label>
-              <input
-                id="car-photo"
-                type="url"
-                formControlName="photoUrl"
-                placeholder="https://example.com/car.jpg"
-                inputmode="url"
-                aria-describedby="car-photo-hint"
-              />
-              <p class="field-hint" id="car-photo-hint">Paste a public image link.</p>
+            <div class="field field--photo">
+              <span class="field-label" id="car-photo-label">
+                Photo <span class="optional-label">Optional</span>
+              </span>
+
+              <div class="photo-source" role="tablist" aria-labelledby="car-photo-label">
+                <button
+                  type="button"
+                  role="tab"
+                  class="photo-source__tab"
+                  [class.is-active]="photoSource() === 'upload'"
+                  [attr.aria-selected]="photoSource() === 'upload'"
+                  (click)="selectSource('upload')"
+                >
+                  Upload a file
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class="photo-source__tab"
+                  [class.is-active]="photoSource() === 'link'"
+                  [attr.aria-selected]="photoSource() === 'link'"
+                  (click)="selectSource('link')"
+                >
+                  Paste a link
+                </button>
+              </div>
+
+              @if (photoSource() === 'upload') {
+                <input
+                  id="car-photo-file"
+                  class="photo-file-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  (change)="onFileSelected($event)"
+                  [disabled]="uploading()"
+                  aria-describedby="car-photo-hint"
+                />
+                <p class="field-hint" id="car-photo-hint">
+                  JPEG, PNG, WebP or GIF, up to 5 MB.
+                </p>
+                @if (uploading()) {
+                  <p class="field-hint" role="status">Uploading…</p>
+                }
+              } @else {
+                <input
+                  id="car-photo"
+                  type="url"
+                  formControlName="photoUrl"
+                  placeholder="https://example.com/car.jpg"
+                  inputmode="url"
+                  aria-describedby="car-photo-link-hint"
+                />
+                <p class="field-hint" id="car-photo-link-hint">Paste a public image link.</p>
+              }
+
+              @if (photoError()) {
+                <p class="field-error" role="alert">{{ photoError() }}</p>
+              }
+
+              @if (form.controls.photoUrl.value; as currentPhoto) {
+                <figure class="photo-preview">
+                  <img [src]="currentPhoto | photoUrl" alt="Selected car photo" />
+                  <figcaption>
+                    <button type="button" class="link-button" (click)="clearPhoto()">
+                      Remove photo
+                    </button>
+                  </figcaption>
+                </figure>
+              }
             </div>
           </div>
         </fieldset>
@@ -208,6 +271,7 @@ export class CarFormComponent implements OnInit {
   private readonly getCar = inject(GetCarUseCase);
   private readonly createCar = inject(CreateCarUseCase);
   private readonly updateCar = inject(UpdateCarUseCase);
+  private readonly uploadPhoto = inject(UploadCarPhotoUseCase);
 
   /** When true the component renders inline (inside a modal) and emits instead of navigating. */
   @Input() modal = false;
@@ -217,6 +281,9 @@ export class CarFormComponent implements OnInit {
   protected readonly carId = signal<number | null>(null);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly photoSource = signal<PhotoSource>('upload');
+  protected readonly uploading = signal(false);
+  protected readonly photoError = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     brand: ['', [Validators.required]],
@@ -233,7 +300,12 @@ export class CarFormComponent implements OnInit {
       const id = Number(idParam);
       this.carId.set(id);
       this.getCar.execute(id).subscribe({
-        next: (car) =>
+        next: (car) => {
+          // Reopen the tab that matches how this photo was set: an absolute URL
+          // was pasted, a relative one came from an upload.
+          if (car.photoUrl?.startsWith('http')) {
+            this.photoSource.set('link');
+          }
           this.form.patchValue({
             brand: car.brand,
             model: car.model,
@@ -241,10 +313,53 @@ export class CarFormComponent implements OnInit {
             plateNumber: car.plateNumber,
             color: car.color,
             photoUrl: car.photoUrl ?? '',
-          }),
+          });
+        },
         error: () => this.error.set('Could not load the car'),
       });
     }
+  }
+
+  selectSource(source: PhotoSource): void {
+    this.photoSource.set(source);
+    this.photoError.set(null);
+  }
+
+  /**
+   * Uploads the picked file and stores the returned URL in the same photoUrl
+   * control the link tab writes to, so submitting the form is identical either
+   * way.
+   */
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.photoError.set(null);
+    this.uploading.set(true);
+    this.uploadPhoto.execute(file).subscribe({
+      next: (url) => {
+        this.form.patchValue({ photoUrl: url });
+        this.uploading.set(false);
+        input.value = '';
+      },
+      error: (err) => {
+        this.photoError.set(
+          err?.status === 400 || err?.status === 413
+            ? 'Use a JPEG, PNG, WebP or GIF image of up to 5 MB'
+            : 'Could not upload the image',
+        );
+        this.uploading.set(false);
+        input.value = '';
+      },
+    });
+  }
+
+  clearPhoto(): void {
+    this.form.patchValue({ photoUrl: '' });
+    this.photoError.set(null);
   }
 
   submit(): void {
