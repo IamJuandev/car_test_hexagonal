@@ -78,7 +78,13 @@ field:
 - **Paste a link** — the URL is stored as given.
 - **Upload a file** — `POST /api/cars/photos` (multipart, field `file`, JWT
   required) accepts JPEG, PNG, WebP or GIF up to 5 MB and answers
-  `{"photoUrl": "/uploads/<generated-name>"}`.
+  `{"photoUrl": "/uploads/<generated-name>.webp"}`.
+
+Every upload is re-encoded to **WebP** before it is written, so the stored
+format never depends on what the browser happened to send — a 240 KB JPEG lands
+as roughly 85 KB. Conversion sits behind `ImageConverterPort`, so the codec can
+be replaced without touching the use case. An animated GIF keeps only its first
+frame.
 
 Uploaded files are written to the directory in `app.uploads.dir`
 (`UPLOADS_DIR`, default `uploads/` next to the running process) and served at
@@ -92,7 +98,7 @@ hostname and the frontend resolves it against the API base URL at render time.
 
 ## Tests
 
-### Backend — unit tests (44, no DB)
+### Backend — unit tests (48, no DB)
 
 Domain + use cases, in a Maven container with a cached dependency volume:
 

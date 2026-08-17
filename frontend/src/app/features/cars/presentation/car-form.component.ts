@@ -192,7 +192,7 @@ type PhotoSource = 'upload' | 'link';
                   aria-describedby="car-photo-hint"
                 />
                 <p class="field-hint" id="car-photo-hint">
-                  JPEG, PNG, WebP or GIF, up to 5 MB.
+                  JPEG, PNG, WebP or GIF, up to 5 MB. Stored as WebP.
                 </p>
                 @if (uploading()) {
                   <p class="field-hint" role="status">Uploading…</p>
